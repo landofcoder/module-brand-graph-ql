@@ -1,8 +1,7 @@
-
 type Query {
 
     lofBrandById (
-            brand_id: Int @doc(description: "Query by id.")
+        brand_id: Int @doc(description: "Query by id.")
     ) : Brand @resolver( class: "Lof\\BrandGraphQl\\Model\\Resolver\\Brand") @doc(description: "Query by Get brand by id.")
 
     lofBrandByProduct(
@@ -11,14 +10,14 @@ type Query {
         filter: BrandFilterInput @doc(description: "Identifies which product attributes to search for and return."),
         pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
         currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
-       ):Brands @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\BrandsByProduct") @doc(description: "The brands query searches for brands that match the criteria specified in the search and filter attributes")
+    ):Brands @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\BrandsByProduct") @doc(description: "The brands query searches for brands that match the criteria specified in the search and filter attributes")
 
     lofBrandList(
-            search: String @doc(description: "Performs a full-text search using the specified key words."),
-            filter: BrandFilterInput @doc(description: "Identifies which product attributes to search for and return."),
-            pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
-            currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
-           ):Brands @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\Brands") @doc(description: "The brands product query searches for brands that match the criteria specified in the search and filter attributes")
+        search: String @doc(description: "Performs a full-text search using the specified key words."),
+        filter: BrandFilterInput @doc(description: "Identifies which product attributes to search for and return."),
+        pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
+        currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
+    ):Brands @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\Brands") @doc(description: "The brands product query searches for brands that match the criteria specified in the search and filter attributes")
 }
 
 type Brand {
@@ -49,8 +48,7 @@ type Brands {
 }
 
 type Product {
-    brand_id  : Int  @doc(description: "Brand Id.")
-    product_id  : Int  @doc(description: "Product Id.")
+    product  : ProductInterface
     position  : Int  @doc(description: "Position.")
 }
 
@@ -65,3 +63,4 @@ input BrandFilterInput {
     group_id: FilterTypeInput @doc(description: "Group ID")
     or: BrandFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
 }
+
