@@ -18,6 +18,14 @@ type Query {
         pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
         currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
     ):Brands @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\Brands") @doc(description: "The brands product query searches for brands that match the criteria specified in the search and filter attributes")
+
+    lofProductByBrand(
+        brand_id: Int! @doc(description: "Brand id")
+        filter: ProductAttributeFilterInput @doc(description: "Identifies which product attributes to search for and return."),
+        pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
+        currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
+        sort: ProductAttributeSortInput @doc(description: "Specifies which attributes to sort on, and whether to return the results in ascending or descending order.")
+    ): Products @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\ProductByBrand") @doc(description: "Get Product by Brand")
 }
 
 type Brand {
