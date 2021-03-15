@@ -8,7 +8,7 @@
     <type name="Magento\Framework\GraphQl\Query\Resolver\Argument\FieldEntityAttributesPool">
         <arguments>
             <argument name="attributesInstances" xsi:type="array">
-                <item name="ves_brand" xsi:type="object">\Lof\BrandGraphQl\Model\Resolver\FilterArgumentBrand</item>
+                <item name="lofProductByBrand" xsi:type="object">\Lof\BrandGraphQl\Model\Resolver\FilterArgumentBrand</item>
             </argument>
         </arguments>
     </type>

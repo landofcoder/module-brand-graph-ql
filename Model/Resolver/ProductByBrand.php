@@ -66,10 +66,9 @@ class ProductByBrand implements ResolverInterface
                 __("'brand_id' input argument is required.")
             );
         }
-        $data['currentPage'] = $args['currentPage'];
-        $data['pageSize'] = $args['pageSize'];
-
-        $searchResult = $this->searchQuery->getResult($data, $info, $context, $args['brand_id']);
+        $brandId = $args['brand_id'];
+        unset($args['brand_id']);
+        $searchResult = $this->searchQuery->getResult($args, $info, $context, $brandId);
 
         if ($searchResult->getCurrentPage() > $searchResult->getTotalPages() && $searchResult->getTotalCount() > 0) {
             throw new GraphQlInputException(
