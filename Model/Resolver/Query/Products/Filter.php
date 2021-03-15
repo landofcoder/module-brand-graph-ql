@@ -78,19 +78,19 @@ class Filter implements ProductQueryInterface
      * @param array $args
      * @param ResolveInfo $info
      * @param ContextInterface $context
+     * @param $brandId
      * @return SearchResult
      */
     public function getResult
     (
         array $args,
         ResolveInfo $info,
-        ContextInterface $context
+        ContextInterface $context,
+        $brandId
     ): SearchResult {
         $fields = $this->fieldSelection->getProductsFieldSelection($info);
         try {
-            //loi dong 92
             $searchCriteria = $this->buildSearchCriteria($args, $info);
-            $brandId = $args['brand_id'];
             $searchResults = $this->productDataProvider->getList($searchCriteria, $fields, false, false, $context, $brandId);
         } catch (InputException $e) {
             return $this->createEmptyResult($args);
