@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Lof\BrandGraphQl\Api;
 
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 
 interface BrandRepositoryInterface
@@ -33,11 +34,12 @@ interface BrandRepositoryInterface
     /**
      * Retrieve brand matching the specified criteria.
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @param string $search
      * @return \Lof\BrandGraphQl\Api\Data\BrandSearchResultsInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getList(
-        \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+        \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria,
+        $search
     );
 
     /**

@@ -12,4 +12,11 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Framework\GraphQl\Query\Resolver\Argument\FieldEntityAttributesPool">
+        <arguments>
+            <argument name="attributesInstances" xsi:type="array">
+                <item name="lofBrands" xsi:type="object">\Lof\BrandGraphQl\Model\Resolver\FilterArgumentBrands</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
