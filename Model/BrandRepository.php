@@ -10,6 +10,8 @@ namespace Lof\BrandGraphQl\Model;
 use Lof\BrandGraphQl\Api\BrandRepositoryInterface;
 use Lof\BrandGraphQl\Api\Data\BrandInterfaceFactory;
 use Lof\BrandGraphQl\Api\Data\BrandSearchResultsInterfaceFactory;
+use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder;
+use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\App\ResourceConnection;
 use Ves\Brand\Model\ResourceModel\Brand as ResourceBrand;
 use Ves\Brand\Model\BrandFactory;
@@ -51,6 +53,10 @@ class BrandRepository implements BrandRepositoryInterface
      * @var ResourceConnection
      */
     private $_resourceConnection;
+    /**
+     * @var ProductCollectionSearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
 
 
     /**
@@ -66,6 +72,7 @@ class BrandRepository implements BrandRepositoryInterface
      * @param JoinProcessorInterface $extensionAttributesJoinProcessor
      * @param ExtensibleDataObjectConverter $extensibleDataObjectConverter
      * @param ResourceConnection $resourceConnection
+     * @param ProductCollectionSearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
         ResourceBrand $resource,
@@ -79,7 +86,8 @@ class BrandRepository implements BrandRepositoryInterface
         CollectionProcessorInterface $collectionProcessor,
         JoinProcessorInterface $extensionAttributesJoinProcessor,
         ExtensibleDataObjectConverter $extensibleDataObjectConverter,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        ProductCollectionSearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->resource = $resource;
         $this->brandFactory = $brandFactory;
@@ -93,6 +101,7 @@ class BrandRepository implements BrandRepositoryInterface
         $this->extensionAttributesJoinProcessor = $extensionAttributesJoinProcessor;
         $this->extensibleDataObjectConverter = $extensibleDataObjectConverter;
         $this->_resourceConnection = $resourceConnection;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
 
     }
 
@@ -147,10 +156,22 @@ class BrandRepository implements BrandRepositoryInterface
      * {@inheritdoc}
      */
     public function getList(
-        \Magento\Framework\Api\SearchCriteriaInterface $criteria
+        \Magento\Framework\Api\SearchCriteriaInterface $criteria,
+        $search
     ) {
         $collection = $this->brandCollectionFactory->create();
-
+        if($search!=""){
+            $collection->addFieldToFilter(
+                array(
+                    'name',
+                    'description',
+                ),
+                array(
+                    array('like' => '%'.$search.'%'),
+                    array('like' => '%'.$search.'%'),
+                )
+            );
+        }
         $this->extensionAttributesJoinProcessor->process(
             $collection,
             \Lof\BrandGraphQl\Api\Data\BrandInterface::class
@@ -243,5 +264,32 @@ class BrandRepository implements BrandRepositoryInterface
     public function deleteById($brandId)
     {
         return $this->delete($this->get($brandId));
+    }
+
+    /**
+     * Format sort orders into associative array
+     *
+     * E.g. ['field1' => 'DESC', 'field2' => 'ASC", ...]
+     *
+     * @param SearchCriteriaInterface $searchCriteria
+     * @return array
+     */
+    private function getSortOrderArray(SearchCriteriaInterface $searchCriteria)
+    {
+        $ordersArray = [];
+        $sortOrders = $searchCriteria->getSortOrders();
+        if (is_array($sortOrders)) {
+            foreach ($sortOrders as $sortOrder) {
+                // I am replacing _id with entity_id because in ElasticSearch _id is required for sorting by ID.
+                // Where as entity_id is required when using ID as the sort in $collection->load();.
+                // @see \Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search::getResult
+                if ($sortOrder->getField() === '_id') {
+                    $sortOrder->setField('entity_id');
+                }
+                $ordersArray[$sortOrder->getField()] = $sortOrder->getDirection();
+            }
+        }
+
+        return $ordersArray;
     }
 }

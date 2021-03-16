@@ -59,11 +59,14 @@ class Brands implements ResolverInterface
         if ($args['pageSize'] < 1) {
             throw new GraphQlInputException(__('pageSize value must be greater than 0.'));
         }
-        $searchCriteria = $this->searchCriteriaBuilder->build( 'ves_brand', $args );
+        $searchCriteria = $this->searchCriteriaBuilder->build( 'lofBrands', $args );
         $searchCriteria->setCurrentPage( $args['currentPage'] );
         $searchCriteria->setPageSize( $args['pageSize'] );
-
-        $searchResult = $this->brandRepository->getList( $searchCriteria );
+        $search = '';
+        if (isset($args['search']) && $args['search']) {
+            $search = $args['search'];
+        }
+        $searchResult = $this->brandRepository->getList( $searchCriteria , $search);
 
         return [
             'total_count' => $searchResult->getTotalCount(),
