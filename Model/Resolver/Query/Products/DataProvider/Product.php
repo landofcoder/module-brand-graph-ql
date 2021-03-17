@@ -3,18 +3,22 @@ declare(strict_types=1);
 
 namespace Lof\BrandGraphQl\Model\Resolver\Query\Products\DataProvider;
 
-use Magento\Catalog\Model\Product\Visibility;
-use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionPostProcessor;
-use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
-use Magento\Framework\Api\SearchResultsInterface;
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
+use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionPostProcessor;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
+use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder;
+use Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchResultApplierFactory;
+use Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchResultApplierInterface;
+use Magento\Framework\Api\Search\SearchResultInterface;
+use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\Api\SearchResultsInterface;
 use Magento\GraphQl\Model\Query\ContextInterface;
 use Ves\Brand\Model\BrandFactory;
 
 /**
- * Product field data provider, used for GraphQL resolver processing.
+ * Product field data provider for product search, used for GraphQL resolver processing.
  */
 class Product
 {
@@ -39,9 +43,14 @@ class Product
     private $collectionPostProcessor;
 
     /**
-     * @var Visibility
+     * @var SearchResultApplierFactory;
      */
-    private $visibility;
+    private $searchResultApplierFactory;
+
+    /**
+     * @var ProductCollectionSearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
     /**
      * @var BrandFactory
      */
@@ -50,66 +59,118 @@ class Product
     /**
      * @param CollectionFactory $collectionFactory
      * @param ProductSearchResultsInterfaceFactory $searchResultsFactory
-     * @param Visibility $visibility
-     * @param CollectionProcessorInterface $collectionProcessor
+     * @param CollectionProcessorInterface $collectionPreProcessor
      * @param CollectionPostProcessor $collectionPostProcessor
+     * @param SearchResultApplierFactory $searchResultsApplierFactory
+     * @param ProductCollectionSearchCriteriaBuilder $searchCriteriaBuilder
      * @param BrandFactory $brandFactory
      */
     public function __construct(
         CollectionFactory $collectionFactory,
         ProductSearchResultsInterfaceFactory $searchResultsFactory,
-        Visibility $visibility,
-        CollectionProcessorInterface $collectionProcessor,
+        CollectionProcessorInterface $collectionPreProcessor,
         CollectionPostProcessor $collectionPostProcessor,
+        SearchResultApplierFactory $searchResultsApplierFactory,
+        ProductCollectionSearchCriteriaBuilder $searchCriteriaBuilder,
         BrandFactory $brandFactory
     ) {
         $this->collectionFactory = $collectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
-        $this->visibility = $visibility;
-        $this->collectionPreProcessor = $collectionProcessor;
+        $this->collectionPreProcessor = $collectionPreProcessor;
         $this->collectionPostProcessor = $collectionPostProcessor;
+        $this->searchResultApplierFactory = $searchResultsApplierFactory;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->brandFactory = $brandFactory;
     }
 
     /**
-     * Gets list of product data with full data set. Adds eav attributes to result set from passed in array
+     * Get list of product data with full data set. Adds eav attributes to result set from passed in array
      *
      * @param SearchCriteriaInterface $searchCriteria
-     * @param string[] $attributes
-     * @param bool $isSearch
-     * @param bool $isChildSearch
+     * @param SearchResultInterface $searchResult
+     * @param array $attributes
      * @param ContextInterface|null $context
-     * @param $brandId
+     * @param Int|null $brandId
      * @return SearchResultsInterface
      */
     public function getList(
         SearchCriteriaInterface $searchCriteria,
+        SearchResultInterface $searchResult,
         array $attributes = [],
-        bool $isSearch = false,
-        bool $isChildSearch = false,
         ContextInterface $context = null,
-        $brandId
+        Int $brandId = null
     ): SearchResultsInterface {
         $collection = $this->collectionFactory->create();
         $brand = $this->brandFactory->create()->load($brandId);
         $productIds = $brand->getData('productIds');
         $collection->addFieldToFilter('entity_id', ['in'=>$productIds]);
-        $this->collectionPreProcessor->process($collection, $searchCriteria, $attributes, $context);
+        //Create a copy of search criteria without filters to preserve the results from search
+        $searchCriteriaForCollection = $this->searchCriteriaBuilder->build($searchCriteria);
+        //Apply CatalogSearch results from search and join table
+        $this->getSearchResultsApplier(
+            $searchResult,
+            $collection,
+            $this->getSortOrderArray($searchCriteriaForCollection)
+        )->apply();
 
-        if (!$isChildSearch) {
-            $visibilityIds = $isSearch
-                ? $this->visibility->getVisibleInSearchIds()
-                : $this->visibility->getVisibleInCatalogIds();
-            $collection->setVisibility($visibilityIds);
-        }
-
+        $this->collectionPreProcessor->process($collection, $searchCriteriaForCollection, $attributes, $context);
         $collection->load();
         $this->collectionPostProcessor->process($collection, $attributes);
 
-        $searchResult = $this->searchResultsFactory->create();
-        $searchResult->setSearchCriteria($searchCriteria);
-        $searchResult->setItems($collection->getItems());
-        $searchResult->setTotalCount($collection->getSize());
-        return $searchResult;
+        $searchResults = $this->searchResultsFactory->create();
+        $searchResults->setSearchCriteria($searchCriteriaForCollection);
+        $searchResults->setItems($collection->getItems());
+        $searchResults->setTotalCount(count($collection));
+        return $searchResults;
+    }
+
+    /**
+     * Create searchResultApplier
+     *
+     * @param SearchResultInterface $searchResult
+     * @param Collection $collection
+     * @param array $orders
+     * @return SearchResultApplierInterface
+     */
+    private function getSearchResultsApplier(
+        SearchResultInterface $searchResult,
+        Collection $collection,
+        array $orders
+    ): SearchResultApplierInterface {
+        return $this->searchResultApplierFactory->create(
+            [
+                'collection' => $collection,
+                'searchResult' => $searchResult,
+                'orders' => $orders
+            ]
+        );
+    }
+
+    /**
+     * Format sort orders into associative array
+     *
+     * E.g. ['field1' => 'DESC', 'field2' => 'ASC", ...]
+     *
+     * @param SearchCriteriaInterface $searchCriteria
+     * @return array
+     * @throws \Magento\Framework\Exception\InputException
+     */
+    private function getSortOrderArray(SearchCriteriaInterface $searchCriteria)
+    {
+        $ordersArray = [];
+        $sortOrders = $searchCriteria->getSortOrders();
+        if (is_array($sortOrders)) {
+            foreach ($sortOrders as $sortOrder) {
+                // I am replacing _id with entity_id because in ElasticSearch _id is required for sorting by ID.
+                // Where as entity_id is required when using ID as the sort in $collection->load();.
+                // @see \Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search::getResult
+                if ($sortOrder->getField() === '_id') {
+                    $sortOrder->setField('entity_id');
+                }
+                $ordersArray[$sortOrder->getField()] = $sortOrder->getDirection();
+            }
+        }
+
+        return $ordersArray;
     }
 }

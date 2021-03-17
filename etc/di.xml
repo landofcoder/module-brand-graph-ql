@@ -3,7 +3,7 @@
     <preference for="Lof\BrandGraphQl\Api\BrandRepositoryInterface" type="Lof\BrandGraphQl\Model\BrandRepository"/>
     <preference for="Lof\BrandGraphQl\Api\Data\BrandInterface" type="Lof\BrandGraphQl\Model\Data\Brand"/>
     <preference for="Lof\BrandGraphQl\Api\Data\BrandSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
-    <preference type="Lof\BrandGraphQl\Model\Resolver\Query\Products\Filter" for="Lof\BrandGraphQl\Model\Resolver\Query\Products\ProductQueryInterface"/>
+    <preference type="Lof\BrandGraphQl\Model\Resolver\Query\Products\Search" for="Lof\BrandGraphQl\Model\Resolver\Query\Products\ProductQueryInterface"/>
 
     <type name="Magento\Framework\GraphQl\Query\Resolver\Argument\FieldEntityAttributesPool">
         <arguments>
