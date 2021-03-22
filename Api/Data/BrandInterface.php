@@ -7,25 +7,80 @@ declare(strict_types=1);
 
 namespace Lof\BrandGraphQl\Api\Data;
 
+/**
+ * Interface BrandInterface
+ * @package Lof\BrandGraphQl\Api\Data
+ */
 interface BrandInterface extends \Magento\Framework\Api\ExtensibleDataInterface
 {
 
+    /**
+     *
+     */
     const META_DESCRIPTION = 'meta_description';
+    /**
+     *
+     */
     const GROUP_ID = 'group_id';
+    /**
+     *
+     */
     const DESCRIPTION = 'description';
+    /**
+     *
+     */
     const LAYOUT_UPDATE_XML = 'layout_update_xml';
+    /**
+     *
+     */
     const CREATION_TIME = 'creation_time';
+    /**
+     *
+     */
     const UPDATE_TIME = 'update_time';
+    /**
+     *
+     */
     const POSITION = 'position';
+    /**
+     *
+     */
     const FEATURED = 'featured';
+    /**
+     *
+     */
     const PAGE_LAYOUT = 'page_layout';
+    /**
+     *
+     */
     const THUMBNAIL = 'thumbnail';
+    /**
+     *
+     */
     const PAGE_TITLE = 'page_title';
+    /**
+     *
+     */
     const STATUS = 'status';
+    /**
+     *
+     */
     const NAME = 'name';
+    /**
+     *
+     */
     const BRAND_ID = 'brand_id';
+    /**
+     *
+     */
     const IMAGE = 'image';
+    /**
+     *
+     */
     const META_KEYWORDS = 'meta_keywords';
+    /**
+     *
+     */
     const URL_KEY = 'url_key';
 
     /**
