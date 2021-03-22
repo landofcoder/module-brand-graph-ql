@@ -67,10 +67,16 @@ class Groups implements ResolverInterface
             $search = $args['search'];
         }
         $searchResult = $this->brandRepository->getList( $searchCriteria , $search);
+        $totalPages = $args['pageSize'] ? ((int)ceil($searchResult->getTotalCount() / $args['pageSize'])) : 0;
 
         return [
             'total_count' => $searchResult->getTotalCount(),
             'items'       => $searchResult->getItems(),
+            'page_info' => [
+                'page_size' => $args['pageSize'],
+                'current_page' => $args['currentPage'],
+                'total_pages' => $totalPages
+            ],
         ];
     }
 }

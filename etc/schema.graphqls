@@ -78,6 +78,7 @@ type Brands {
 
 type Groups {
     total_count: Int @doc(description: "The number of groups returned")
+    page_info: SearchResultPageInfo @doc(description: "Page info")
     items: [Group] @doc(description: "An array of groups that match the specified search criteria")
 }
 

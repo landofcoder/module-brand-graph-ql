@@ -188,6 +188,8 @@ class BrandRepository implements BrandRepositoryInterface
         $this->collectionProcessor->process($criteria, $collection);
 
         $searchResults = $this->searchResultsFactory->create();
+        $realPageSize = $criteria->getPageSize();
+
         $searchResults->setSearchCriteria($criteria);
 
         $items = [];
