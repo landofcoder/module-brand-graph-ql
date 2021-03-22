@@ -25,6 +25,7 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Store\Model\StoreManagerInterface;
+use Ves\Brand\Model\ResourceModel\Group\CollectionFactory;
 
 class BrandRepository implements BrandRepositoryInterface
 {
@@ -57,6 +58,10 @@ class BrandRepository implements BrandRepositoryInterface
      * @var ProductCollectionSearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
+    /**
+     * @var CollectionFactory
+     */
+    private $groupCollectionFactory;
 
 
     /**
@@ -73,6 +78,7 @@ class BrandRepository implements BrandRepositoryInterface
      * @param ExtensibleDataObjectConverter $extensibleDataObjectConverter
      * @param ResourceConnection $resourceConnection
      * @param ProductCollectionSearchCriteriaBuilder $searchCriteriaBuilder
+     * @param CollectionFactory $groupCollectionFactory
      */
     public function __construct(
         ResourceBrand $resource,
@@ -87,7 +93,8 @@ class BrandRepository implements BrandRepositoryInterface
         JoinProcessorInterface $extensionAttributesJoinProcessor,
         ExtensibleDataObjectConverter $extensibleDataObjectConverter,
         ResourceConnection $resourceConnection,
-        ProductCollectionSearchCriteriaBuilder $searchCriteriaBuilder
+        ProductCollectionSearchCriteriaBuilder $searchCriteriaBuilder,
+        CollectionFactory $groupCollectionFactory
     ) {
         $this->resource = $resource;
         $this->brandFactory = $brandFactory;
@@ -102,6 +109,7 @@ class BrandRepository implements BrandRepositoryInterface
         $this->extensibleDataObjectConverter = $extensibleDataObjectConverter;
         $this->_resourceConnection = $resourceConnection;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->groupCollectionFactory = $groupCollectionFactory;
 
     }
 
@@ -180,6 +188,8 @@ class BrandRepository implements BrandRepositoryInterface
         $this->collectionProcessor->process($criteria, $collection);
 
         $searchResults = $this->searchResultsFactory->create();
+        $realPageSize = $criteria->getPageSize();
+
         $searchResults->setSearchCriteria($criteria);
 
         $items = [];
@@ -192,6 +202,36 @@ class BrandRepository implements BrandRepositoryInterface
         }
 
         $searchResults->setItems($items);
+        $searchResults->setTotalCount($collection->getSize());
+        return $searchResults;
+    }
+
+    public function getGroups(
+        \Magento\Framework\Api\SearchCriteriaInterface $criteria,
+        $search
+    ) {
+        $collection = $this->groupCollectionFactory->create();
+        if($search!=""){
+            $collection->addFieldToFilter(
+                array(
+                    'name'
+                ),
+                array(
+                    array('like' => '%'.$search.'%')
+                )
+            );
+        }
+        $this->extensionAttributesJoinProcessor->process(
+            $collection,
+            \Lof\BrandGraphQl\Api\Data\GroupInterface::class
+        );
+
+        $this->collectionProcessor->process($criteria, $collection);
+
+        $searchResults = $this->searchResultsFactory->create();
+        $searchResults->setSearchCriteria($criteria);
+
+        $searchResults->setItems($collection->getItems());
         $searchResults->setTotalCount($collection->getSize());
         return $searchResults;
     }

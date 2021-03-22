@@ -27,6 +27,14 @@ type Query {
         currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
         sort: ProductAttributeSortInput @doc(description: "Specifies which attributes to sort on, and whether to return the results in ascending or descending order.")
     ): Products @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\ProductByBrand") @doc(description: "Get Product by Brand")
+
+    lofBrandGroups(
+        search: String @doc(description: "Performs a full-text search using the specified key words."),
+        filter: GroupFilterInput @doc(description: "Identifies which product attributes to search for and return."),
+        pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
+        currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
+    ): Groups @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\Groups") @doc(description: "The brands product query searches for brands that match the criteria specified in the search and filter attributes")
+
 }
 
 type Brand {
@@ -48,13 +56,32 @@ type Brand {
     featured  : Int  @doc(description: "Featured.")
     position  : Int  @doc(description: "Position.")
     products  : [Product]  @doc(description: "Products.")
+    total_product : Int @doc(description: "Total products of this brand")
     store_id  : [Int]  @doc(description: "Stores.")
 }
+
+
+type Group {
+    group_id  : Int  @doc(description: "Brand id.")
+    name  : String  @doc(description: "Brand Name.")
+    url_key  : String  @doc(description: "Url Key.")
+    position  : Int  @doc(description: "Position.")
+    shown_in_sidebar  : Int  @doc(description: "Show in sidebar.")
+    brands  : Brands  @doc(description: "Products.") @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\GroupAttributeSetBrandsResolver")
+}
+
 
 type Brands {
     total_count: Int @doc(description: "The number of brands returned")
     items: [Brand] @doc(description: "An array of brands that match the specified search criteria")
 }
+
+type Groups {
+    total_count: Int @doc(description: "The number of groups returned")
+    page_info: SearchResultPageInfo @doc(description: "Page info")
+    items: [Group] @doc(description: "An array of groups that match the specified search criteria")
+}
+
 
 type Product {
     product  : ProductInterface
@@ -71,6 +98,15 @@ input BrandFilterInput {
     status: FilterTypeInput @doc(description: "Status")
     group_id: FilterTypeInput @doc(description: "Group ID")
     or: BrandFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
+}
+
+input GroupFilterInput {
+    group_id: FilterTypeInput @doc(description: "Brand group ID")
+    name: FilterTypeInput @doc(description: "Name")
+    status: FilterTypeInput @doc(description: "Status")
+    position: FilterTypeInput @doc(description: "Position")
+    shown_in_sidebar: FilterTypeInput @doc(description: "Shown In Sidebar")
+    or: GroupFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
 }
 
 interface ProductInterface {

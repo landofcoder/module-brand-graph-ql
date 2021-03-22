@@ -104,6 +104,7 @@ class Product
         $brand = $this->brandFactory->create()->load($brandId);
         $productIds = $brand->getData('productIds');
         $collection->addFieldToFilter('entity_id', ['in'=>$productIds]);
+
         //Create a copy of search criteria without filters to preserve the results from search
         $searchCriteriaForCollection = $this->searchCriteriaBuilder->build($searchCriteria);
         //Apply CatalogSearch results from search and join table
@@ -120,7 +121,8 @@ class Product
         $searchResults = $this->searchResultsFactory->create();
         $searchResults->setSearchCriteria($searchCriteriaForCollection);
         $searchResults->setItems($collection->getItems());
-        $searchResults->setTotalCount(count($collection));
+        $searchResults->setTotalCount($searchResult->getTotalCount());
+
         return $searchResults;
     }
 

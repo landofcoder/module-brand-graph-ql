@@ -10,6 +10,10 @@ namespace Lof\BrandGraphQl\Api;
 use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 
+/**
+ * Interface BrandRepositoryInterface
+ * @package Lof\BrandGraphQl\Api
+ */
 interface BrandRepositoryInterface
 {
 
@@ -72,4 +76,14 @@ interface BrandRepositoryInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function deleteById($brandId);
+
+    /**
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @param string $search
+     * @return mixed
+     */
+    public function getGroups(
+        \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria,
+        $search
+    );
 }
