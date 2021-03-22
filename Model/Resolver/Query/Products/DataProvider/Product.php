@@ -122,6 +122,7 @@ class Product
         $searchResults->setSearchCriteria($searchCriteriaForCollection);
         $searchResults->setItems($collection->getItems());
         $searchResults->setTotalCount($searchResult->getTotalCount());
+
         return $searchResults;
     }
 
