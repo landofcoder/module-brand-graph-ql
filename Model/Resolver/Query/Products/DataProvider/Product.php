@@ -14,6 +14,7 @@ use Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchResultAp
 use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SearchResultsInterface;
+use Magento\Framework\Exception\InputException;
 use Magento\GraphQl\Model\Query\ContextInterface;
 use Ves\Brand\Model\BrandFactory;
 
@@ -92,6 +93,7 @@ class Product
      * @param ContextInterface|null $context
      * @param Int|null $brandId
      * @return SearchResultsInterface
+     * @throws InputException
      */
     public function getList(
         SearchCriteriaInterface $searchCriteria,
@@ -103,7 +105,7 @@ class Product
         $collection = $this->collectionFactory->create();
         $brand = $this->brandFactory->create()->load($brandId);
         $productIds = $brand->getData('productIds');
-        $collection->addFieldToFilter('entity_id', ['in'=>$productIds]);
+        $collection->addFieldToFilter('entity_id', ['in'=> $productIds]);
 
         //Create a copy of search criteria without filters to preserve the results from search
         $searchCriteriaForCollection = $this->searchCriteriaBuilder->build($searchCriteria);
@@ -155,7 +157,7 @@ class Product
      *
      * @param SearchCriteriaInterface $searchCriteria
      * @return array
-     * @throws \Magento\Framework\Exception\InputException
+     * @throws InputException
      */
     private function getSortOrderArray(SearchCriteriaInterface $searchCriteria)
     {

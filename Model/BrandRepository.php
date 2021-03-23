@@ -27,28 +27,65 @@ use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Store\Model\StoreManagerInterface;
 use Ves\Brand\Model\ResourceModel\Group\CollectionFactory;
 
+/**
+ * Class BrandRepository
+ * @package Lof\BrandGraphQl\Model
+ */
 class BrandRepository implements BrandRepositoryInterface
 {
 
+    /**
+     * @var DataObjectHelper
+     */
     protected $dataObjectHelper;
 
+    /**
+     * @var BrandFactory
+     */
     protected $brandFactory;
 
+    /**
+     * @var BrandInterfaceFactory
+     */
     protected $dataBrandFactory;
 
+    /**
+     * @var StoreManagerInterface
+     */
     private $storeManager;
 
+    /**
+     * @var DataObjectProcessor
+     */
     protected $dataObjectProcessor;
 
+    /**
+     * @var JoinProcessorInterface
+     */
     protected $extensionAttributesJoinProcessor;
 
+    /**
+     * @var ResourceBrand
+     */
     protected $resource;
 
+    /**
+     * @var ExtensibleDataObjectConverter
+     */
     protected $extensibleDataObjectConverter;
+    /**
+     * @var BrandSearchResultsInterfaceFactory
+     */
     protected $searchResultsFactory;
 
+    /**
+     * @var CollectionProcessorInterface
+     */
     private $collectionProcessor;
 
+    /**
+     * @var BrandCollectionFactory
+     */
     protected $brandCollectionFactory;
     /**
      * @var ResourceConnection
@@ -206,6 +243,11 @@ class BrandRepository implements BrandRepositoryInterface
         return $searchResults;
     }
 
+    /**
+     * @param SearchCriteriaInterface $criteria
+     * @param string $search
+     * @return \Lof\BrandGraphQl\Api\Data\BrandSearchResultsInterface|mixed
+     */
     public function getGroups(
         \Magento\Framework\Api\SearchCriteriaInterface $criteria,
         $search
@@ -231,7 +273,7 @@ class BrandRepository implements BrandRepositoryInterface
         $searchResults = $this->searchResultsFactory->create();
         $searchResults->setSearchCriteria($criteria);
 
-        $searchResults->setItems($collection->getItems());
+        $searchResults->setItems($collection->getData());
         $searchResults->setTotalCount($collection->getSize());
         return $searchResults;
     }
