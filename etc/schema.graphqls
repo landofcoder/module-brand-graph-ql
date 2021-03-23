@@ -109,7 +109,6 @@ input GroupFilterInput {
     or: GroupFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
 }
 
-
 interface ProductInterface {
     brands: Brands @doc(description: "Seller who sell this product") @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\ProductAttributeSetBrandsResolver")
 }
