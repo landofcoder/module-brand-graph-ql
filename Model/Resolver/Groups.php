@@ -66,7 +66,7 @@ class Groups implements ResolverInterface
         if (isset($args['search']) && $args['search']) {
             $search = $args['search'];
         }
-        $searchResult = $this->brandRepository->getList( $searchCriteria , $search);
+        $searchResult = $this->brandRepository->getGroups( $searchCriteria , $search);
         $totalPages = $args['pageSize'] ? ((int)ceil($searchResult->getTotalCount() / $args['pageSize'])) : 0;
 
         return [

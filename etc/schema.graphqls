@@ -34,7 +34,6 @@ type Query {
         pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
         currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
     ): Groups @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\Groups") @doc(description: "The brands product query searches for brands that match the criteria specified in the search and filter attributes")
-
 }
 
 type Brand {
@@ -55,8 +54,7 @@ type Brand {
     status  : Int  @doc(description: "Status.")
     featured  : Int  @doc(description: "Featured.")
     position  : Int  @doc(description: "Position.")
-    products  : [Product]  @doc(description: "Products.")
-    total_product : Int @doc(description: "Total products of this brand")
+    products  : Products  @doc(description: "Products.")  @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\BrandAttributeSetProductsResolver")
     store_id  : [Int]  @doc(description: "Stores.")
 }
 
