@@ -121,7 +121,7 @@ class Product
         $searchResults = $this->searchResultsFactory->create();
         $searchResults->setSearchCriteria($searchCriteriaForCollection);
         $searchResults->setItems($collection->getItems());
-        $searchResults->setTotalCount($searchResult->getTotalCount());
+        $searchResults->setTotalCount($collection->getSize());
         return $searchResults;
     }
 
