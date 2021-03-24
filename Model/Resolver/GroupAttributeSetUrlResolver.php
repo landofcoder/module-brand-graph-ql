@@ -21,41 +21,42 @@
 
 namespace Lof\BrandGraphQl\Model\Resolver;
 
-use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Ves\Brand\Model\BrandFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Ves\Brand\Helper\Data;
 
 /**
- * Class to resolve custom attribute_set_name field in brand GraphQL query
+ * Class to resolve custom attribute_set_url field in group GraphQL query
  */
-class BrandAttributeSetProductsResolver implements ResolverInterface
+class GroupAttributeSetUrlResolver implements ResolverInterface
 {
+
     /**
-     * @var BrandFactory
+     * @var StoreManagerInterface
      */
-    private $brandFactory;
+    private $_storeManager;
     /**
-     * @var ProductRepositoryInterface
+     * @var Data
      */
-    private $productRepository;
+    private $_brandHelper;
 
     /**
      * BrandAttributeSetProductsResolver constructor.
-     * @param ProductRepositoryInterface $productRepository
-     * @param BrandFactory $brand
+     * @param StoreManagerInterface $storeManager
+     * @param Data $helperData
      */
     public function __construct(
-        ProductRepositoryInterface $productRepository,
-        BrandFactory $brand
+        StoreManagerInterface $storeManager,
+        Data $helperData
     ) {
-        $this->productRepository = $productRepository;
-        $this->brandFactory = $brand;
+        $this->_storeManager = $storeManager;
+        $this->_brandHelper = $helperData;
     }
-
 
     /**
      * @param Field $field
@@ -64,25 +65,21 @@ class BrandAttributeSetProductsResolver implements ResolverInterface
      * @param array|null $value
      * @param array|null $args
      * @return array|Value|mixed
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
-        if (isset($value['brand_id']) && $value['brand_id']) {
-            $brand = $this->brandFactory->create()->load($value['brand_id']);
-            $products = $brand->getData('productIds');
-            $items = [];
-            foreach ($products as $key => $productId) {
-                $product = $this->productRepository->getById($productId);
-                $items[$key] = $product->getData();
-                $items[$key]['model'] = $product;
+        if (isset($value['url_key']) && $value['url_key']) {
+            $url = $this->_storeManager->getStore()->getBaseUrl();
+            $url_prefix = $this->_brandHelper->getConfig('general_settings/url_prefix');
+            $urlPrefix = '';
+            if($url_prefix){
+                $urlPrefix = $url_prefix.'/';
             }
-            return [
-                'total_count' => count($items),
-                'items' => $items
-            ];
+            $url_suffix = $this->_brandHelper->getConfig('general_settings/url_suffix');
+            return $url.$urlPrefix.$value['url_key'].$url_suffix;
         } else {
-            return [];
+            return "";
         }
     }
 }
