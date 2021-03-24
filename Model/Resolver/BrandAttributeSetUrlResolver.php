@@ -21,33 +21,43 @@
 
 namespace Lof\BrandGraphQl\Model\Resolver;
 
+
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
-use Magento\Framework\GraphQl\Query\Resolver\Value;
-use Ves\Brand\Model\ResourceModel\Brand\CollectionFactory;
 use Magento\Framework\GraphQl\Config\Element\Field;
+use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Ves\Brand\Model\BrandFactory;
 
 /**
- * Class to resolve custom attribute_set_name field in group GraphQL query
+ * Class to resolve custom attribute_set_name field in brand GraphQL query
  */
-class GroupAttributeSetBrandsResolver implements ResolverInterface
+class BrandAttributeSetUrlResolver implements ResolverInterface
 {
-
     /**
-     * @var CollectionFactory
+     * @var BrandFactory
      */
-    private $brandCollectionFactory;
+    private $brandFactory;
+    /**
+     * @var ProductRepositoryInterface
+     */
+    private $productRepository;
 
     /**
-     * GroupAttributeSetBrandsResolver constructor.
-     * @param CollectionFactory $brandCollectionFactory
+     * BrandAttributeSetProductsResolver constructor.
+     * @param ProductRepositoryInterface $productRepository
+     * @param BrandFactory $brand
      */
     public function __construct(
-        CollectionFactory $brandCollectionFactory
+        ProductRepositoryInterface $productRepository,
+        BrandFactory $brand
     ) {
-        $this->brandCollectionFactory = $brandCollectionFactory;
+        $this->productRepository = $productRepository;
+        $this->brandFactory = $brand;
     }
+
 
     /**
      * @param Field $field
@@ -56,23 +66,15 @@ class GroupAttributeSetBrandsResolver implements ResolverInterface
      * @param array|null $value
      * @param array|null $args
      * @return array|Value|mixed
+     * @throws NoSuchEntityException
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
-        if (isset($value['group_id']) && $value['group_id']) {
-            $collection = $this->brandCollectionFactory->create();
-            $collection->addFieldToFilter('group_id', $value['group_id']);
-            $items = [];
-            foreach($collection as $item) {
-                $item->load($item->getBrandId());
-                $items[] = $item;
-            }
-            return [
-                'total_count' => $collection->getSize(),
-                'items' => $collection->getData()
-            ];
+        if (isset($value['brand_id']) && $value['brand_id']) {
+            $brand = $this->brandFactory->create()->load($value['brand_id']);
+            return $brand->getUrl();
         } else {
-            return [];
+            return "";
         }
     }
 }

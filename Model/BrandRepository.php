@@ -1,7 +1,22 @@
 <?php
 /**
- * Copyright © Landofcoder All rights reserved.
- * See COPYING.txt for license details.
+ * Landofcoder
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Landofcoder.com license that is
+ * available through the world-wide-web at this URL:
+ * https://landofcoder.com/terms
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category   Landofcoder
+ * @package    Lof_BrandGraphQl
+ * @copyright  Copyright (c) 2021 Landofcoder (https://www.landofcoder.com/)
+ * @license    https://landofcoder.com/terms
  */
 declare(strict_types=1);
 
@@ -190,11 +205,7 @@ class BrandRepository implements BrandRepositoryInterface
         if (!$brand->getId()) {
             throw new NoSuchEntityException(__('brand with id "%1" does not exist.', $brandId));
         }
-        $item = $brand->getData();
-        $item['url_key'] = $brand->getUrl();
-        $item['image'] = $brand->getImageUrl();
-        $item['thumbnail'] = $brand->getThumbnailUrl();
-        return $item;
+        return $brand->getData();
     }
 
     /**
@@ -225,21 +236,13 @@ class BrandRepository implements BrandRepositoryInterface
         $this->collectionProcessor->process($criteria, $collection);
 
         $searchResults = $this->searchResultsFactory->create();
-        $realPageSize = $criteria->getPageSize();
 
         $searchResults->setSearchCriteria($criteria);
 
-        $items = [];
-        foreach ($collection as $key => $model) {
-            $model->load($model->getBrandId());
-            $items[$key] = $model->getData();
-            $items[$key] ['url_key'] = $model->getUrl();
-            $items[$key] ['image'] = $model->getImageUrl();
-            $items[$key] ['thumbnail'] = $model->getThumbnailUrl();
-        }
+        $searchResults->setItems($collection->getData());
 
-        $searchResults->setItems($items);
         $searchResults->setTotalCount($collection->getSize());
+
         return $searchResults;
     }
 
@@ -305,16 +308,8 @@ class BrandRepository implements BrandRepositoryInterface
                 ->setOrder('position','ASC')
                 ->addFieldToFilter('status',1);
             $collection->getSelect()->where('brand_id IN (?)', $brandIds);
-            $items = [];
-            foreach ($collection as $key => $model) {
-                $model->load($model->getBrandId());
-                $items[$key] = $model->getData();
-                $items[$key]['url_key'] = $model->getUrl();
-                $items[$key]['image'] = $model->getImageUrl();
-                $items[$key]['thumbnail'] = $model->getThumbnailUrl();
-            }
 
-            $searchResults->setItems($items);
+            $searchResults->setItems($collection->getData());
             $searchResults->setTotalCount($collection->getSize());
         }
 
