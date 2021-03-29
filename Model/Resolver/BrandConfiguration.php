@@ -108,6 +108,13 @@ class BrandConfiguration implements ResolverInterface
             'brand_block_nav'=> $this->brandHelper->getconfig('brand_block/nav',$storeId),
             'brand_block_nav_prev'=> $this->brandHelper->getconfig('brand_block/nav_prev',$storeId),
             'brand_block_nav_next'=> $this->brandHelper->getconfig('brand_block/nav_next',$storeId),
+
+            'group_page_show_brand_name'=> $this->brandHelper->getconfig('group_page/show_brand_name',$storeId),
+            'group_page_item_per_page'=> $this->brandHelper->getconfig('group_page/item_per_page',$storeId),
+            'group_page_lg_column_item'=> $this->brandHelper->getconfig('group_page/lg_column_item',$storeId),
+            'group_page_md_column_item'=> $this->brandHelper->getconfig('group_page/md_column_item',$storeId),
+            'group_page_sm_column_item'=> $this->brandHelper->getconfig('group_page/sm_column_item',$storeId),
+            'group_page_xs_column_item'=> $this->brandHelper->getconfig('group_page/xs_column_item',$storeId),
         ];
     }
 }
