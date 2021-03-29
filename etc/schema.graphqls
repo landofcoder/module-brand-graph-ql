@@ -2,7 +2,6 @@ type StoreConfig {
     Brand: BrandConfiguration @resolver(class: "\\Lof\\BrandGraphQl\\Model\\Resolver\\BrandConfiguration") @doc(description: "Brand configuration.")
 }
 
-
 type BrandConfiguration {
     general_settings_enable : Boolean
     general_settings_route : String
@@ -62,6 +61,14 @@ type BrandConfiguration {
     brand_block_nav : Boolean
     brand_block_nav_prev : String
     brand_block_nav_next : String
+
+    group_page_show_brand_name : Boolean
+    group_page_item_per_page : Int
+    group_page_lg_column_item : String
+    group_page_md_column_item : String
+    group_page_sm_column_item : String
+    group_page_xs_column_item : String
+
 
 }
 type Query {
