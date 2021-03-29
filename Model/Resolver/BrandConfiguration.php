@@ -115,6 +115,7 @@ class BrandConfiguration implements ResolverInterface
             'group_page_md_column_item'=> $this->brandHelper->getconfig('group_page/md_column_item',$storeId),
             'group_page_sm_column_item'=> $this->brandHelper->getconfig('group_page/sm_column_item',$storeId),
             'group_page_xs_column_item'=> $this->brandHelper->getconfig('group_page/xs_column_item',$storeId),
+
         ];
     }
 }

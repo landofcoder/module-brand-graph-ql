@@ -69,6 +69,7 @@ type BrandConfiguration {
     group_page_sm_column_item : String
     group_page_xs_column_item : String
 
+
 }
 type Query {
 
